@@ -14,6 +14,19 @@ export class MapperService {
     this.mapper.initialize(MapperService.configure);
   }
 
-  static configure(config: AutoMapperJs.IConfiguration): void {}
+  static configure(config: AutoMapperJs.IConfiguration): void {
+    config
+      .createMap('User', 'UserVm')
+      .forSourceMember('_id', opts => opts.ignore())
+      .forSourceMember('password', opts => opts.ignore());
+
+    config
+      .createMap('Todo', 'TodoVm')
+      .forSourceMember('_id', opts => opts.ignore());
+
+    config
+      .createMap('Todo[]', 'TodoVm[]')
+      .forSourceMember('_id', opts => opts.ignore());
+  }
 
 }

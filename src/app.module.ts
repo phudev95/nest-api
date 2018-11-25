@@ -6,12 +6,14 @@ import { SharedModule } from './shared/shared.module';
 import { ConfigurationService } from './shared/configuration/configuration.service';
 import { Configuration } from './shared/configuration/configuration.enum';
 import { UserModule } from './user/user.module';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(ConfigurationService.connectionString),
     SharedModule,
     UserModule,
+    TodoModule,
   ],
   controllers: [
     AppController,
