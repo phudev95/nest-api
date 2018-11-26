@@ -1,7 +1,7 @@
 import { forwardRef, HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
-import { compare, getSalt, hash } from 'bcryptjs';
+import { compare, genSalt, hash } from 'bcryptjs';
 
 import { BaseService } from '../shared/base.service';
 import { User } from './models/user.model';
@@ -34,7 +34,7 @@ export class UserService extends BaseService<User> {
     newUser.firstName = firstName;
     newUser.lastName = lastName;
 
-    const salt = await getSalt('10');
+    const salt = await genSalt(10);
     newUser.password = await hash(password, salt);
 
     try {
@@ -63,7 +63,6 @@ export class UserService extends BaseService<User> {
     const payload: JwtPayload = {
       username: user.username,
       role: user.role,
-      iat: new Date(),
     };
 
     const token = await this._authService.signPayload(payload);

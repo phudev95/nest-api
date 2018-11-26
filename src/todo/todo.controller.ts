@@ -1,6 +1,6 @@
-import { ApiResponse, ApiOperation, ApiUseTags, ApiImplicitQuery } from '@nestjs/swagger';
-import { Body, Controller, Delete, Get, HttpStatus, Post, Put, Query, Param, HttpException } from '@nestjs/common';
-import { map, isArray } from 'lodash';
+import { ApiBearerAuth, ApiImplicitQuery, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { isArray, map } from 'lodash';
 
 import { TodoService } from './todo.service';
 import { TodoParams } from './models/view-models/todo-params.model';
@@ -10,14 +10,21 @@ import { GetOperationId } from '../shared/utilities/get-operation-id';
 import { Todo } from './models/todo.model';
 import { TodoLevel } from './models/todo-level.enum';
 import { ToBooleanPipe } from '../shared/pipes/to-boolean.pipe';
+import { Roles } from '../shared/decorators/roles.decorator';
+import { UserRole } from '../user/models/user-role.enum';
+import { RolesGuards } from '../shared/guards/roles.guards';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('todos')
 @ApiUseTags(Todo.modelName)
+@ApiBearerAuth()
 export class TodoController {
   constructor(private readonly _todoService: TodoService) {
   }
 
   @Post()
+  @Roles(UserRole.Admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuards)
   @ApiResponse({status: HttpStatus.CREATED, type: TodoVm})
   @ApiResponse({status: HttpStatus.BAD_REQUEST, type: ApiException})
   @ApiOperation(GetOperationId((Todo.modelName), 'Create'))
@@ -37,6 +44,8 @@ export class TodoController {
   }
 
   @Get()
+  @Roles(UserRole.Admin, UserRole.User)
+  @UseGuards(AuthGuard('jwt'), RolesGuards)
   @ApiResponse({status: HttpStatus.OK, type: TodoVm})
   @ApiResponse({status: HttpStatus.BAD_REQUEST, type: ApiException})
   @ApiOperation(GetOperationId((Todo.modelName), 'GetAll'))
@@ -110,6 +119,7 @@ export class TodoController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.Admin)
   @ApiResponse({status: HttpStatus.OK, type: TodoVm})
   @ApiResponse({status: HttpStatus.BAD_REQUEST, type: ApiException})
   @ApiOperation(GetOperationId((Todo.modelName), 'Delete'))
